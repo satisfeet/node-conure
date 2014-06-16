@@ -30,14 +30,14 @@ Creates an instance of `conure.Client`. The object `options` requires:
 
 for authentication.
 
-#### Class: Client
+### Class: Client
 
 The `Client` prototype creates HTTPS requests for us. The main reason
 for this whole lib is that we need a customized `https.Agent` to get
 response times to an acceptable level as well as having the option to
 implement a cache layer on top.
 
-##### client.find(name[, query])
+#### client.find(name[, query])
 
     yield client.find('customers', { search: 'Bodo' });
 
@@ -51,7 +51,7 @@ supports:
 `client.find` will throw an error if authentication fails our we have a
 status code different from `200`.
 
-##### client.findOne(name, query)
+#### client.findOne(name, query)
 
     yield client.findOne('customers', { id: '123' });
 
