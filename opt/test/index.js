@@ -87,6 +87,14 @@ describe('createClient(options)', function() {
 
     });
 
+    describe('#persist(name, body)', function() {
+
+    });
+
+    describe('#remove(name, body)', function() {
+
+    });
+
   });
 
 });
