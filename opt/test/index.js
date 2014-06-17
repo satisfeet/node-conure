@@ -226,7 +226,7 @@ describe('createClient(options)', function() {
 
     });
 
-    xdescribe('#remove(name, body)', function() {
+    describe('#remove(name, body)', function() {
 
       before(create);
 
