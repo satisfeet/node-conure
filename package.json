@@ -2,7 +2,7 @@
 
   "name": "conure",
 
-  "version": "0.0.1",
+  "version": "0.0.2",
 
   "author": "Bodo Kaiser <i@bodokaiser.io>",
 
@@ -19,16 +19,17 @@
   "main": "lib",
 
   "devDependencies": {
+    "co": "^3.0.6",
     "chai": "^1.9.1",
     "mocha": "^1.20.1"
   },
 
   "repository": {
-    "url": "git://github.com/satisfeet/node-conure.git"
+    "url": "git://github.com/satisfeet/conure.git"
   },
 
   "bugs": {
-    "url": "https://github.com/satisfeet/node-conure/issues"
+    "url": "https://github.com/satisfeet/conure/issues"
   }
 
 }

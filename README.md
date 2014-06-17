@@ -1,10 +1,8 @@
 # Conure
 
-**Conure** is the node REST API client for [satisfeet](https://satisfeet.me).
-
 ![Golden Conure](http://bit.ly/U2RBgE)
 
-## Usage
+**Conure** is the node REST API client for [satisfeet](https://satisfeet.me).
 
     var conure = require('conure');
 
@@ -20,6 +18,9 @@
     console.log(results);
 
 ## Documentation
+
+**Conure** extends nodes `https` module, tunes it for improved OpenSSL
+performance and wraps the requests in some trendy methods.
 
 ### createClient(options)
 
@@ -56,6 +57,32 @@ status code different from `200`.
     yield client.findOne('customers', { id: '123' });
 
 Returns a customer object with the given `query.id`.
+
+#### client.persist(name, body)
+
+		// creates a new customer
+		var result = yield client.persist('customers', {
+			name: 'Bodo Kaiser',
+			email: 'i@bodokaiser.io',
+			address: {
+				city: 'Berlin'
+			}
+		});
+
+		result.email = 'info@satisfeet.me';
+		result.company = 'satisfeet';
+
+		// updates customer
+		yield client.persist('customers', result);
+
+Creates or updates a model. Depends on id provided.
+
+#### client.remove(name, body)
+
+		// lets take the result from above
+		yield client.remove('customers', result);
+
+Destroys a model (by id).
 
 ## License
 
