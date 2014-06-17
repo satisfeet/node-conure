@@ -168,9 +168,107 @@ describe('createClient(options)', function() {
 
     describe('#persist(name, body)', function() {
 
+      it('should return object', co(function* () {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+	var result = yield client.persist('customers', {
+	  name: 'Soap MacTavish',
+	  email: 'soap@mwarfare.com',
+	  address: {
+	    city: 'Edinburg'
+	  }
+	});
+
+	chai.expect(result)
+	  .to.be.an('object')
+	  .to.have.property('id');
+
+	this.customer = result;
+      }));
+
+      it('should return customer', co(function* () {
+	var client = conure.createClient({
+	  username: USERNAME,
+	  password: PASSWORD
+	});
+
+	this.customer.name += ' Junior';
+
+	yield client.persist('customers', this.customer);
+      }));
+
+      it('should throw error on missing "name"', function() {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+	chai.expect(function() {
+	  client.persist();
+	}).to.throwError;
+      });
+
+      it('should throw error on missing "body"', function() {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+        chai.expect(function() {
+          client.persist('customers');
+	}).to.throwError;
+      });
+
+      after(destroy);
+
     });
 
-    describe('#remove(name, body)', function() {
+    xdescribe('#remove(name, body)', function() {
+
+      before(create);
+
+      it('should remove entity', co(function* () {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+	yield client.remove('customers', this.customer);
+
+	var result = yield client.findOne('customers', {
+	  id: this.customer.id
+	});
+
+	chai.expect(result)
+	  .to.be.null;
+      }));
+
+      it('should throw error on missing "name"', function() {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+	chai.expect(function() {
+	  client.remove();
+	}).to.throwError;
+      });
+
+      it('should throw error on missing "body"', function() {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+        chai.expect(function() {
+          client.remove('customers');
+	}).to.throwError;
+      });
+
+      after(destroy);
 
     });
 
