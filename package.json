@@ -18,12 +18,7 @@
 
   "main": "lib",
 
-  "dependencies": {
-    "cogent": "^0.4.3"
-  },
-
   "devDependencies": {
-    "co": "^3.0.6",
     "chai": "^1.9.1",
     "mocha": "^1.20.1"
   },
