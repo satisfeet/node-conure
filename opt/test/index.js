@@ -59,6 +59,27 @@ describe('createClient(options)', function() {
         });
       });
 
+      it('should return empty array', function(done) {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+        co(function* () {
+          return yield client.find('customers', {
+            search: 'blablabalbalbalba'
+          });
+        })(function(err, result) {
+          if (err) throw err;
+
+          chai.expect(result)
+            .to.be.an('array')
+            .to.be.empty;
+
+          done();
+        });
+      });
+
       it('should throw error on missing "name"', function() {
         var client = conure.createClient({
           username: USERNAME,
