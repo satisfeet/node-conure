@@ -117,17 +117,6 @@ describe('createClient(options)', function() {
 
       before(create);
 
-      it('should return null', co(function* () {
-        var client = conure.createClient({
-          username: USERNAME,
-          password: PASSWORD
-        });
-
-	var result = yield client.findOne('customers', { id: '1234' });
-
-	chai.expect(result).to.be.null;
-      }));
-
       it('should return customer', co(function* () {
 	var client = conure.createClient({
 	  username: USERNAME,
@@ -165,6 +154,22 @@ describe('createClient(options)', function() {
 	}).to.throwError;
       });
 
+      it('should throw not found error', function(done) {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+        co(function*() {
+	  yield client.findOne('customers', { id: '1234' });
+        })(function(err) {
+          if (err instanceof conure.NotFoundError) return done();
+
+          throw err;
+        });
+      });
+
+
       it('should throw error on invalid credentials', function(done) {
 	var client = conure.createClient({
 	  username: 'foo',
@@ -172,14 +177,11 @@ describe('createClient(options)', function() {
 	});
 
 	co(function* () {
-	  return yield client.findOne('customers', { id: 123 });
+	  yield client.findOne('customers', { id: 123 });
 	})(function(err) {
-	  chai.expect(err)
-	    .to.be.an.instanceOf(Error)
-	    .to.have.property('name')
-	    .to.contain('Authentication');
+          if (err instanceof conure.AuthenticationError) return done();
 
-	  done();
+          throw err;
 	});
       });
 
@@ -251,21 +253,25 @@ describe('createClient(options)', function() {
 
       before(create);
 
-      it('should remove entity', co(function* () {
+      it('should remove entity', function(done) {
         var client = conure.createClient({
           username: USERNAME,
           password: PASSWORD
         });
 
-	yield client.remove('customers', this.customer);
+        var self = this;
+        co(function*() {
+          yield client.remove('customers', self.customer);
 
-	var result = yield client.findOne('customers', {
-	  id: this.customer.id
-	});
+          var result = yield client.findOne('customers', {
+            id: self.customer.id
+          });
+        })(function(err) {
+          if (err instanceof conure.NotFoundError) return done();
 
-	chai.expect(result)
-	  .to.be.null;
-      }));
+          throw err;
+        });
+      });
 
       it('should throw error on missing "name"', function() {
         var client = conure.createClient({
@@ -339,10 +345,12 @@ function create(done) {
 }
 
 function destroy(done) {
+  var self = this;
+
   https.request({
     auth: USERNAME + ':' + PASSWORD,
     host: 'engine.satisfeet.me',
-    path: '/customers/' + this.customer.id,
+    path: '/customers/' + self.customer.id,
     method: 'DELETE'
   }).end(done);
 }
