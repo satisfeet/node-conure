@@ -56,8 +56,7 @@ describe('createClient(options)', function() {
         co(function* () {
           return yield client.find('customers');
         })(function(err, result) {
-          chai.expect(err)
-            .to.not.exist;
+          if (err) throw err;
 
           chai.expect(result)
             .to.be.an('array');
