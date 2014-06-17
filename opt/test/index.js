@@ -1,6 +1,6 @@
 var co     = require('co');
 var chai   = require('chai');
-var cogent = require('cogent');
+var https  = require('https');
 var conure = require('../../lib');
 
 const URL = 'https://engine.satisfeet.me';
@@ -59,19 +59,15 @@ describe('createClient(options)', function() {
         });
       });
 
-      it('should throw error on missing "name"', function(done) {
+      it('should throw error on missing "name"', function() {
         var client = conure.createClient({
           username: USERNAME,
           password: PASSWORD
         });
 
-        co(function* () {
-          yield client.find();
-        })(function(err) {
-          chai.expect(err).to.be.an.instanceOf(Error);
-
-          done();
-        });
+	chai.expect(function() {
+          client.find();
+	}).to.throwError;
       });
 
       it('should throw error on invalid credentials', function(done) {
@@ -98,52 +94,54 @@ describe('createClient(options)', function() {
 
     describe('#findOne(name, query)', function() {
 
-      it('should not throw error', function(done) {
+      before(create);
+
+      it('should return null', co(function* () {
         var client = conure.createClient({
           username: USERNAME,
           password: PASSWORD
         });
 
-        co(function* () {
-          return yield client.findOne('customers', {
-	    id: '1234'
-	  });
-        })(function(err, body) {
-          chai.expect(err).to.not.exist;
-	  chai.expect(body).to.be.null;
+	var result = yield client.findOne('customers', { id: '1234' });
 
-          done();
+	chai.expect(result).to.be.null;
+      }));
+
+      it('should return customer', co(function* () {
+	var client = conure.createClient({
+	  username: USERNAME,
+	  password: PASSWORD
+	});
+
+	var result = yield client.findOne('customers', {
+	  id: this.customer.id
+	});
+
+	chai.expect(result)
+	  .to.be.an('object')
+	  .to.eql(this.customer);
+      }));
+
+      it('should throw error on missing "name"', function() {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
         });
+
+	chai.expect(function() {
+	  client.findOne();
+	}).to.throwError;
       });
 
-      it('should throw error on missing "name"', function(done) {
+      it('should throw error on missing "query"', function() {
         var client = conure.createClient({
           username: USERNAME,
           password: PASSWORD
         });
 
-        co(function* () {
-          yield client.findOne();
-        })(function(err) {
-          chai.expect(err).to.be.an.instanceOf(Error);
-
-          done();
-        });
-      });
-
-      it('should throw error on missing "query"', function(done) {
-        var client = conure.createClient({
-          username: USERNAME,
-          password: PASSWORD
-        });
-
-        co(function* () {
-          yield client.findOne('customers');
-        })(function(err) {
-          chai.expect(err).to.be.an.instanceOf(Error);
-
-          done();
-        });
+        chai.expect(function() {
+          client.findOne('customers');
+	}).to.throwError;
       });
 
       it('should throw error on invalid credentials', function(done) {
@@ -153,9 +151,7 @@ describe('createClient(options)', function() {
 	});
 
 	co(function* () {
-	  yield client.findOne('customers', {
-	    id: 123
-	  });
+	  return yield client.findOne('customers', { id: 123 });
 	})(function(err) {
 	  chai.expect(err)
 	    .to.be.an.instanceOf(Error)
@@ -165,6 +161,8 @@ describe('createClient(options)', function() {
 	  done();
 	});
       });
+
+      after(destroy);
 
     });
 
@@ -179,3 +177,53 @@ describe('createClient(options)', function() {
   });
 
 });
+
+function create(done) {
+  var self = this;
+
+  var req = https.request({
+    auth: USERNAME + ':' + PASSWORD,
+    host: 'engine.satisfeet.me',
+    path: '/customers',
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  });
+
+  req.once('response', function(res) {
+    if (res.statusCode !== 200) {
+      throw new Error('Response is "' + res.statusMessage + '".');
+    }
+
+    var body = '';
+    res.once('readable', function() {
+      body += (res.read() || '').toString();
+    });
+    res.once('end', function() {
+      self.customer = JSON.parse(body);
+
+      done();
+    });
+  });
+  req.once('error', function(err) {
+    done(err);
+  });
+  req.end(JSON.stringify({
+    name: 'Pierce Brosnan',
+    email: 'pierce@broccoli.com',
+    address: {
+      city: 'London'
+    }
+  }));
+}
+
+function destroy(done) {
+  https.request({
+    auth: USERNAME + ':' + PASSWORD,
+    host: 'engine.satisfeet.me',
+    path: '/customers/' + this.customer.id,
+    method: 'DELETE'
+  }).end(done);
+}
