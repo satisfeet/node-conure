@@ -39,6 +39,48 @@ describe('createClient(options)', function() {
 
   describe('Class: Client', function() {
 
+    describe('#check()', function() {
+
+      it('should return true', function(done) {
+        var client = conure.createClient({
+          username: USERNAME,
+          password: PASSWORD
+        });
+
+        co(function* () {
+          return yield client.check();
+        })(function(err, result) {
+          if (err) throw err;
+
+          chai.expect(result)
+            .to.be.a('boolean')
+            .to.be.true;
+
+          done();
+        });
+      });
+
+      it('should return false', function(done) {
+        var client = conure.createClient({
+          username: 'foo',
+          password: 'bar'
+        });
+
+        co(function* () {
+          return yield client.check();
+        })(function(err, result) {
+          if (err) throw err;
+
+          chai.expect(result)
+            .to.be.a('boolean')
+            .to.be.false;
+
+          done();
+        });
+      });
+
+    });
+
     describe('#find(name[, query])', function() {
 
       it('should return array', function(done) {

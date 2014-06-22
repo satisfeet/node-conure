@@ -38,6 +38,12 @@ for this whole lib is that we need a customized `https.Agent` to get
 response times to an acceptable level as well as having the option to
 implement a cache layer on top.
 
+#### client.check()
+
+    yield client.check();
+
+Returns `true` if request succeeds.
+
 #### client.find(name[, query])
 
     yield client.find('customers', { search: 'Bodo' });
