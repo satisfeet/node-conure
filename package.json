@@ -2,14 +2,14 @@
 
   "name": "conure",
 
-  "version": "0.0.9",
+  "version": "0.0.10",
 
   "author": "Bodo Kaiser <i@bodokaiser.io>",
 
   "description": "Client for satisfeets REST API.",
 
   "scripts": {
-    "test": "mocha opt/test"
+    "test": "mocha --harmony opt/test"
   },
 
   "engine": {
